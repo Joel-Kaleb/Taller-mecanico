@@ -88,6 +88,19 @@ CREATE TABLE IF NOT EXISTS `vehiculos` (
   CONSTRAINT `vehiculos_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE IF NOT EXISTS `citas` (
+  `id_cita` int(11) NOT NULL AUTO_INCREMENT,
+  `id_cliente` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `fecha_cita` datetime NOT NULL,
+  `descripcion` varchar(255) NOT NULL,
+  PRIMARY KEY (`id_cita`),
+  KEY `id_cliente` (`id_cliente`),
+  KEY `id_usuario` (`id_usuario`),
+  CONSTRAINT `citas_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`) ON UPDATE CASCADE,
+  CONSTRAINT `citas_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 -- Volcando datos para la tabla dbtaller_mecanico.vehiculos: ~0 rows (aproximadamente)
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
