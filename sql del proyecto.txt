@@ -1,110 +1,107 @@
 -- --------------------------------------------------------
 -- Host:                         127.0.0.1
--- Versión del servidor:         11.6.2-MariaDB - mariadb.org binary distribution
--- SO del servidor:              Win64
+-- Versión del servidor:         PostgreSQL
 -- HeidiSQL Versión:             12.8.0.6908
 -- --------------------------------------------------------
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
+-- Configuración inicial
+SET client_encoding TO 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages TO warning;
 
 -- Volcando estructura de base de datos para dbtaller_mecanico
-CREATE DATABASE IF NOT EXISTS `dbtaller_mecanico` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
-USE `dbtaller_mecanico`;
+CREATE DATABASE dbtaller_mecanico;
+\c dbtaller_mecanico;
 
 -- Volcando estructura para tabla dbtaller_mecanico.clientes
-CREATE TABLE IF NOT EXISTS `clientes` (
-  `id_cliente` int(11) NOT NULL AUTO_INCREMENT,
-  `id_usuario` int(11) NOT NULL,
-  `nombre_cliente` varchar(100) NOT NULL,
-  `telefono` varchar(10) NOT NULL,
-  PRIMARY KEY (`id_cliente`),
-  KEY `id_usuario` (`id_usuario`),
-  CONSTRAINT `clientes_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE IF NOT EXISTS clientes (
+  id_cliente SERIAL PRIMARY KEY,
+  id_usuario INT NOT NULL,
+  nombre_cliente VARCHAR(100) NOT NULL,
+  telefono VARCHAR(10) NOT NULL
+);
+
+CREATE INDEX idx_id_usuario ON clientes (id_usuario);
 
 -- Volcando datos para la tabla dbtaller_mecanico.clientes: ~1 rows (aproximadamente)
-INSERT INTO `clientes` (`id_cliente`, `id_usuario`, `nombre_cliente`, `telefono`) VALUES
-	(1, 1, 'owo', '1234567890');
+INSERT INTO clientes (id_cliente, id_usuario, nombre_cliente, telefono) VALUES
+  (1, 1, 'owo', '1234567890');
 
 -- Volcando estructura para tabla dbtaller_mecanico.piezas
-CREATE TABLE IF NOT EXISTS `piezas` (
-  `id_pieza` int(11) NOT NULL AUTO_INCREMENT,
-  `descripcion` varchar(255) NOT NULL,
-  `cantidad` int(11) NOT NULL,
-  PRIMARY KEY (`id_pieza`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE IF NOT EXISTS piezas (
+  id_pieza SERIAL PRIMARY KEY,
+  descripcion VARCHAR(255) NOT NULL,
+  cantidad INT NOT NULL
+);
 
 -- Volcando datos para la tabla dbtaller_mecanico.piezas: ~0 rows (aproximadamente)
 
 -- Volcando estructura para tabla dbtaller_mecanico.reparaciones
-CREATE TABLE IF NOT EXISTS `reparaciones` (
-  `folio` int(11) NOT NULL AUTO_INCREMENT,
-  `matricula` varchar(20) NOT NULL,
-  `pieza` int(11) NOT NULL,
-  `fecha_entrada` date NOT NULL,
-  `fecha_salida` date NOT NULL,
-  `falla` varchar(255) NOT NULL,
-  `precio` decimal(10,2) NOT NULL,
-  PRIMARY KEY (`folio`),
-  KEY `matricula` (`matricula`),
-  KEY `pieza` (`pieza`),
-  CONSTRAINT `reparaciones_ibfk_1` FOREIGN KEY (`matricula`) REFERENCES `vehiculos` (`matricula`) ON UPDATE CASCADE,
-  CONSTRAINT `reparaciones_ibfk_2` FOREIGN KEY (`pieza`) REFERENCES `piezas` (`id_pieza`) ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE IF NOT EXISTS reparaciones (
+  folio SERIAL PRIMARY KEY,
+  matricula VARCHAR(20) NOT NULL,
+  pieza INT NOT NULL,
+  fecha_entrada DATE NOT NULL,
+  fecha_salida DATE NOT NULL,
+  falla VARCHAR(255) NOT NULL,
+  precio NUMERIC(10, 2) NOT NULL
+);
+
+CREATE INDEX idx_matricula ON reparaciones (matricula);
+CREATE INDEX idx_pieza ON reparaciones (pieza);
 
 -- Volcando datos para la tabla dbtaller_mecanico.reparaciones: ~0 rows (aproximadamente)
 
 -- Volcando estructura para tabla dbtaller_mecanico.usuarios
-CREATE TABLE IF NOT EXISTS `usuarios` (
-  `id_usuario` int(11) NOT NULL AUTO_INCREMENT,
-  `correo_electronico` varchar(255) NOT NULL,
-  `contrasena` varchar(255) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `rol` enum('admin','secretaria','mecanico') NOT NULL,
-  PRIMARY KEY (`id_usuario`),
-  UNIQUE KEY `correo_electronico` (`correo_electronico`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE IF NOT EXISTS usuarios (
+  id_usuario SERIAL PRIMARY KEY,
+  correo_electronico VARCHAR(255) NOT NULL UNIQUE,
+  contrasena VARCHAR(255) NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  rol VARCHAR(10) NOT NULL
+);
 
 -- Volcando datos para la tabla dbtaller_mecanico.usuarios: ~1 rows (aproximadamente)
-INSERT INTO `usuarios` (`id_usuario`, `correo_electronico`, `contrasena`, `nombre`, `rol`) VALUES
-	(1, 'joel@gmail.com', '123', 'joel', 'admin');
+INSERT INTO usuarios (id_usuario, correo_electronico, contrasena, nombre, rol) VALUES
+  (1, 'joel@gmail.com', '123', 'joel', 'admin');
 
 -- Volcando estructura para tabla dbtaller_mecanico.vehiculos
-CREATE TABLE IF NOT EXISTS `vehiculos` (
-  `matricula` varchar(20) NOT NULL,
-  `id_cliente` int(11) NOT NULL,
-  `marca` varchar(20) NOT NULL,
-  `modelo` varchar(20) NOT NULL,
-  PRIMARY KEY (`matricula`),
-  KEY `id_cliente` (`id_cliente`),
-  CONSTRAINT `vehiculos_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`) ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE IF NOT EXISTS vehiculos (
+  matricula VARCHAR(20) PRIMARY KEY,
+  id_cliente INT NOT NULL,
+  marca VARCHAR(20) NOT NULL,
+  modelo VARCHAR(20) NOT NULL
+);
 
-CREATE TABLE IF NOT EXISTS `citas` (
-  `id_cita` int(11) NOT NULL AUTO_INCREMENT,
-  `id_cliente` int(11) NOT NULL,
-  `id_usuario` int(11) NOT NULL,
-  `fecha_cita` datetime NOT NULL,
-  `descripcion` varchar(255) NOT NULL,
-  PRIMARY KEY (`id_cita`),
-  KEY `id_cliente` (`id_cliente`),
-  KEY `id_usuario` (`id_usuario`),
-  CONSTRAINT `citas_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`) ON UPDATE CASCADE,
-  CONSTRAINT `citas_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE INDEX idx_id_cliente ON vehiculos (id_cliente);
 
 -- Volcando datos para la tabla dbtaller_mecanico.vehiculos: ~0 rows (aproximadamente)
 
-/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
+-- Volcando estructura para tabla dbtaller_mecanico.citas
+CREATE TABLE IF NOT EXISTS citas (
+  id_cita SERIAL PRIMARY KEY,
+  id_cliente INT NOT NULL,
+  id_usuario INT NOT NULL,
+  fecha_cita TIMESTAMP NOT NULL,
+  descripcion VARCHAR(255) NOT NULL
+);
+
+CREATE INDEX idx_id_cliente_citas ON citas (id_cliente);
+CREATE INDEX idx_id_usuario_citas ON citas (id_usuario);
+
+-- Volcando datos para la tabla dbtaller_mecanico.citas: ~0 rows (aproximadamente)
+
+-- Añadir claves foráneas
+ALTER TABLE clientes ADD CONSTRAINT fk_clientes_usuarios FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario) ON UPDATE CASCADE;
+ALTER TABLE reparaciones ADD CONSTRAINT fk_reparaciones_vehiculos FOREIGN KEY (matricula) REFERENCES vehiculos (matricula) ON UPDATE CASCADE;
+ALTER TABLE reparaciones ADD CONSTRAINT fk_reparaciones_piezas FOREIGN KEY (pieza) REFERENCES piezas (id_pieza) ON UPDATE CASCADE;
+ALTER TABLE vehiculos ADD CONSTRAINT fk_vehiculos_clientes FOREIGN KEY (id_cliente) REFERENCES clientes (id_cliente) ON UPDATE CASCADE;
+ALTER TABLE citas ADD CONSTRAINT fk_citas_clientes FOREIGN KEY (id_cliente) REFERENCES clientes (id_cliente) ON UPDATE CASCADE;
+ALTER TABLE citas ADD CONSTRAINT fk_citas_usuarios FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario) ON UPDATE CASCADE;
+
+-- Restauración de la configuración inicial
+RESET client_encoding;
+RESET standard_conforming_strings;
+RESET check_function_bodies;
+RESET client_min_messages;
