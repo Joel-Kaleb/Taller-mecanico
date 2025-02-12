@@ -14,94 +14,66 @@ SET client_min_messages TO warning;
 CREATE DATABASE dbtaller_mecanico;
 \c dbtaller_mecanico;
 
--- Volcando estructura para tabla dbtaller_mecanico.clientes
-CREATE TABLE IF NOT EXISTS clientes (
-  id_cliente SERIAL PRIMARY KEY,
-  id_usuario INT NOT NULL,
-  nombre_cliente VARCHAR(100) NOT NULL,
-  telefono VARCHAR(10) NOT NULL
+-- Tabla: usuarios
+CREATE TABLE usuarios (
+    id_usuario SERIAL PRIMARY KEY,
+    correo_electronico VARCHAR(255) NOT NULL UNIQUE,
+    contrasena VARCHAR(255) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    rol VARCHAR(10) NOT NULL
 );
 
-CREATE INDEX idx_id_usuario ON clientes (id_usuario);
-
--- Volcando datos para la tabla dbtaller_mecanico.clientes: ~1 rows (aproximadamente)
-INSERT INTO clientes (id_cliente, id_usuario, nombre_cliente, telefono) VALUES
-  (1, 1, 'owo', '1234567890');
-
--- Volcando estructura para tabla dbtaller_mecanico.piezas
-CREATE TABLE IF NOT EXISTS piezas (
-  id_pieza SERIAL PRIMARY KEY,
-  descripcion VARCHAR(255) NOT NULL,
-  cantidad INT NOT NULL
+-- Tabla: clientes
+CREATE TABLE clientes (
+    id_cliente SERIAL PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    nombre_cliente VARCHAR(100) NOT NULL,
+    telefono VARCHAR(10) NOT NULL,
+    CONSTRAINT fk_clientes_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario)
 );
 
--- Volcando datos para la tabla dbtaller_mecanico.piezas: ~0 rows (aproximadamente)
-
--- Volcando estructura para tabla dbtaller_mecanico.reparaciones
-CREATE TABLE IF NOT EXISTS reparaciones (
-  folio SERIAL PRIMARY KEY,
-  matricula VARCHAR(20) NOT NULL,
-  pieza INT NOT NULL,
-  fecha_entrada DATE NOT NULL,
-  fecha_salida DATE NOT NULL,
-  falla VARCHAR(255) NOT NULL,
-  precio NUMERIC(10, 2) NOT NULL
+-- Tabla: vehiculos
+CREATE TABLE vehiculos (
+    matricula VARCHAR(20) PRIMARY KEY,
+    id_cliente INT NOT NULL,
+    marca VARCHAR(20) NOT NULL,
+    modelo VARCHAR(20) NOT NULL,
+    CONSTRAINT fk_vehiculos_cliente FOREIGN KEY (id_cliente) REFERENCES clientes (id_cliente)
 );
 
-CREATE INDEX idx_matricula ON reparaciones (matricula);
-CREATE INDEX idx_pieza ON reparaciones (pieza);
+-- Tabla: citas
+CREATE TABLE citas (
+    id_cita SERIAL PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    id_cliente INT NOT NULL,
+    fecha_cita TIMESTAMP NOT NULL,
+    descripcion VARCHAR(255) NOT NULL,
+    CONSTRAINT fk_citas_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario),
+    CONSTRAINT fk_citas_cliente FOREIGN KEY (id_cliente) REFERENCES clientes (id_cliente)
+);
 
--- Volcando datos para la tabla dbtaller_mecanico.reparaciones: ~0 rows (aproximadamente)
+-- Tabla: piezas
+CREATE TABLE piezas (
+    id_pieza SERIAL PRIMARY KEY,
+    descripcion VARCHAR(255) NOT NULL,
+    cantidad INT NOT NULL,
+    categoria VARCHAR(50),
+    stock_actual INT
+);
 
--- Volcando estructura para tabla dbtaller_mecanico.usuarios
-CREATE TABLE IF NOT EXISTS usuarios (
-  id_usuario SERIAL PRIMARY KEY,
-  correo_electronico VARCHAR(255) NOT NULL UNIQUE,
-  contrasena VARCHAR(255) NOT NULL,
-  nombre VARCHAR(100) NOT NULL,
-  rol VARCHAR(10) NOT NULL
+-- Tabla: reparaciones
+CREATE TABLE reparaciones (
+    folio SERIAL PRIMARY KEY,
+    matricula VARCHAR(20) NOT NULL,
+    pieza INT NOT NULL,
+    fecha_entrada DATE NOT NULL,
+    fecha_salida DATE,
+    falla VARCHAR(255) NOT NULL,
+    precio NUMERIC(10, 2),
+    CONSTRAINT fk_reparaciones_vehiculo FOREIGN KEY (matricula) REFERENCES vehiculos (matricula),
+    CONSTRAINT fk_reparaciones_pieza FOREIGN KEY (pieza) REFERENCES piezas (id_pieza)
 );
 
 -- Volcando datos para la tabla dbtaller_mecanico.usuarios: ~1 rows (aproximadamente)
 INSERT INTO usuarios (id_usuario, correo_electronico, contrasena, nombre, rol) VALUES
   (1, 'joel@gmail.com', '123', 'joel', 'admin');
-
--- Volcando estructura para tabla dbtaller_mecanico.vehiculos
-CREATE TABLE IF NOT EXISTS vehiculos (
-  matricula VARCHAR(20) PRIMARY KEY,
-  id_cliente INT NOT NULL,
-  marca VARCHAR(20) NOT NULL,
-  modelo VARCHAR(20) NOT NULL
-);
-
-CREATE INDEX idx_id_cliente ON vehiculos (id_cliente);
-
--- Volcando datos para la tabla dbtaller_mecanico.vehiculos: ~0 rows (aproximadamente)
-
--- Volcando estructura para tabla dbtaller_mecanico.citas
-CREATE TABLE IF NOT EXISTS citas (
-  id_cita SERIAL PRIMARY KEY,
-  id_cliente INT NOT NULL,
-  id_usuario INT NOT NULL,
-  fecha_cita TIMESTAMP NOT NULL,
-  descripcion VARCHAR(255) NOT NULL
-);
-
-CREATE INDEX idx_id_cliente_citas ON citas (id_cliente);
-CREATE INDEX idx_id_usuario_citas ON citas (id_usuario);
-
--- Volcando datos para la tabla dbtaller_mecanico.citas: ~0 rows (aproximadamente)
-
--- Añadir claves foráneas
-ALTER TABLE clientes ADD CONSTRAINT fk_clientes_usuarios FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario) ON UPDATE CASCADE;
-ALTER TABLE reparaciones ADD CONSTRAINT fk_reparaciones_vehiculos FOREIGN KEY (matricula) REFERENCES vehiculos (matricula) ON UPDATE CASCADE;
-ALTER TABLE reparaciones ADD CONSTRAINT fk_reparaciones_piezas FOREIGN KEY (pieza) REFERENCES piezas (id_pieza) ON UPDATE CASCADE;
-ALTER TABLE vehiculos ADD CONSTRAINT fk_vehiculos_clientes FOREIGN KEY (id_cliente) REFERENCES clientes (id_cliente) ON UPDATE CASCADE;
-ALTER TABLE citas ADD CONSTRAINT fk_citas_clientes FOREIGN KEY (id_cliente) REFERENCES clientes (id_cliente) ON UPDATE CASCADE;
-ALTER TABLE citas ADD CONSTRAINT fk_citas_usuarios FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario) ON UPDATE CASCADE;
-
--- Restauración de la configuración inicial
-RESET client_encoding;
-RESET standard_conforming_strings;
-RESET check_function_bodies;
-RESET client_min_messages;
