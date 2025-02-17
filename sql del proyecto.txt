@@ -1,18 +1,11 @@
--- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Versión del servidor:         PostgreSQL
--- HeidiSQL Versión:             12.8.0.6908
--- --------------------------------------------------------
-
 -- Configuración inicial
 SET client_encoding TO 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages TO warning;
 
--- Volcando estructura de base de datos para dbtaller_mecanico
+-- Crear base de datos
 CREATE DATABASE dbtaller_mecanico;
-\c dbtaller_mecanico;
 
 -- Tabla: usuarios
 CREATE TABLE usuarios (
@@ -58,7 +51,7 @@ CREATE TABLE piezas (
     descripcion VARCHAR(255) NOT NULL,
     cantidad INT NOT NULL,
     categoria VARCHAR(50),
-    stock_actual INT
+    stock_actual INT NOT NULL
 );
 
 -- Tabla: reparaciones
@@ -74,6 +67,19 @@ CREATE TABLE reparaciones (
     CONSTRAINT fk_reparaciones_pieza FOREIGN KEY (pieza) REFERENCES piezas (id_pieza)
 );
 
--- Volcando datos para la tabla dbtaller_mecanico.usuarios: ~1 rows (aproximadamente)
-INSERT INTO usuarios (id_usuario, correo_electronico, contrasena, nombre, rol) VALUES
-  (1, 'joel@gmail.com', '123', 'joel', 'admin');
+-- Insertar datos iniciales
+INSERT INTO usuarios (correo_electronico, contrasena, nombre, rol) VALUES
+  ('joel@gmail.com', '123', 'joel', 'admin');
+
+-- Crear índices
+CREATE INDEX idx_clientes_usuario ON clientes (id_usuario);
+CREATE INDEX idx_vehiculos_cliente ON vehiculos (id_cliente);
+CREATE INDEX idx_citas_usuario ON citas (id_usuario);
+CREATE INDEX idx_citas_cliente ON citas (id_cliente);
+CREATE INDEX idx_reparaciones_vehiculo ON reparaciones (matricula);
+CREATE INDEX idx_reparaciones_pieza ON reparaciones (pieza);
+
+-- Configuración de seguridad
+REVOKE ALL ON DATABASE dbtaller_mecanico FROM PUBLIC;
+GRANT CONNECT ON DATABASE dbtaller_mecanico TO admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO admin;
