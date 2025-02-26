@@ -1,0 +1,22 @@
+# Ignorar configuraciones sensibles de Django
+Taller_Mecanico/Taller_Mecanico/settings.py
+
+# Ignorar archivos compilados de Python
+*.pyc
+__pycache__/
+
+# Ignorar base de datos SQLite
+db.sqlite3
+
+# Ignorar entornos virtuales (si usas uno)
+venv/
+*.venv
+.env
+
+# Ignorar archivos de caché de editores de código
+.DS_Store
+.idea/
+.vscode/
+
+# Ignorar migraciones si no quieres subirlas
+TallerMecanico/migrations/
