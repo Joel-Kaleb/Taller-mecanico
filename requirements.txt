@@ -6,3 +6,5 @@ django-filter
 django-jazzmin
 pdfkit
 weasyprint
+qrcode==7.4.2
+
