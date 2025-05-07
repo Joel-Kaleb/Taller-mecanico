@@ -7,4 +7,5 @@ django-jazzmin
 pdfkit
 weasyprint
 qrcode==7.4.2
+dj_database_url
 
