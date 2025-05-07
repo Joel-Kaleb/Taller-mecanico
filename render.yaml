@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: taller-mecanico
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn TallerMecanico.wsgi:application"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: TallerMecanico.settings
+      - key: PYTHON_VERSION
+        value: 3.10
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taller-db
+          property: connectionString
+    autoDeploy: true
