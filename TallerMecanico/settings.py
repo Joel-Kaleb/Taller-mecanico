@@ -89,7 +89,7 @@ WSGI_APPLICATION = 'TallerMecanico.wsgi.application'
 # Database
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgres://postgres:#Hive2022@localhost:5432/dbtaller',
+        default=os.getenv('DATABASE_URL'),
         conn_max_age=600,
         ssl_require=not DEBUG
     )
